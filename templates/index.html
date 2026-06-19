@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能销售数据分析系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* 聊天界面样式 */
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .chat-input button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .chat-input button:hover {
+            opacity: 0.9;
+        }
+
+        /* 数据概览样式 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* 可视化界面样式 */
+        .viz-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .viz-btn {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .viz-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .viz-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .chart-container {
+            min-height: 400px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-container img {
+            max-width: 100%;
+            max-height: 400px;
+        }
+
+        /* 查询界面样式 */
+        .query-section {
+            margin-bottom: 20px;
+        }
+
+        .query-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .query-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .suggestion {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .suggestion:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .query-result {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 200px;
+            overflow-x: auto;
+        }
+
+        .query-result table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .query-result th,
+        .query-result td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .query-result th {
+            background: #667eea;
+            color: white;
+        }
+
+        .query-result tr:hover {
+            background: #f0f0f0;
+        }
+
+        .sql-display {
+            background: #2d3748;
+            color: #68d391;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        /* 全宽卡片 */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>智能销售数据分析系统</h1>
+            <p>基于大语言模型的智能问答与数据可视化平台</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- 数据概览卡片 -->
+            <div class="card">
+                <div class="card-header">数据概览</div>
+                <div class="card-body">
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalSales">-</div>
+                            <div class="stat-label">总销售额</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalOrders">-</div>
+                            <div class="stat-label">订单数量</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalProfit">-</div>
+                            <div class="stat-label">总利润</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="avgOrder">-</div>
+                            <div class="stat-label">平均订单金额</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 智能问答卡片 -->
+            <div class="card">
+                <div class="card-header">智能问答助手</div>
+                <div class="card-body">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message assistant">
+                                <div class="message-content">
+                                    您好！我是智能数据分析助手，可以帮您分析销售数据、回答数据相关问题。请问有什么可以帮您的？
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="请输入您的问题..." onkeypress="handleChatKeyPress(event)">
+                            <button onclick="sendMessage()">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据可视化卡片 -->
+            <div class="card">
+                <div class="card-header">数据可视化</div>
+                <div class="card-body">
+                    <div class="viz-controls">
+                        <button class="viz-btn active" onclick="createChart('bar')">柱状图</button>
+                        <button class="viz-btn" onclick="createChart('line')">折线图</button>
+                        <button class="viz-btn" onclick="createChart('pie')">饼图</button>
+                    </div>
+                    <div class="chart-container" id="chartContainer">
+                        <p>请选择图表类型生成可视化</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 自然语言查询卡片 -->
+            <div class="card">
+                <div class="card-header">自然语言查询</div>
+                <div class="card-body">
+                    <div class="query-section">
+                        <input type="text" class="query-input" id="queryInput"
+                               placeholder="请输入您的查询，例如：查询所有电子产品的销售总额"
+                               onkeypress="handleQueryKeyPress(event)">
+                        <button onclick="executeQuery()" style="padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer;">执行查询</button>
+                    </div>
+                    <div class="suggestions" id="suggestions"></div>
+                    <div class="query-result" id="queryResult">
+                        <p>输入自然语言查询，系统将自动转换为SQL并执行</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDataSummary();
+            loadQuerySuggestions();
+        });
+
+        // 加载数据摘要
+        async function loadDataSummary() {
+            try {
+                const response = await fetch('/api/data/summary');
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error(data.error);
+                    return;
+                }
+
+                const stats = data.statistics;
+                document.getElementById('totalSales').textContent = formatCurrency(stats['总销售额']);
+                document.getElementById('totalOrders').textContent = formatNumber(stats['订单数量']);
+                document.getElementById('totalProfit').textContent = formatCurrency(stats['总利润']);
+                document.getElementById('avgOrder').textContent = formatCurrency(stats['平均订单金额']);
+            } catch (error) {
+                console.error('加载数据摘要失败:', error);
+            }
+        }
+
+        // 加载查询建议
+        async function loadQuerySuggestions() {
+            try {
+                const response = await fetch('/api/query/suggestions');
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error(data.error);
+                    return;
+                }
+
+                const suggestionsDiv = document.getElementById('suggestions');
+                suggestionsDiv.innerHTML = data.suggestions.map(s =>
+                    `<span class="suggestion" onclick="useSuggestion('${s}')">${s}</span>`
+                ).join('');
+            } catch (error) {
+                console.error('加载查询建议失败:', error);
+            }
+        }
+
+        // 发送聊天消息
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // 添加用户消息
+            addMessage('user', message);
+            input.value = '';
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    addMessage('assistant', '抱歉，处理您的请求时出现错误: ' + data.error);
+                } else {
+                    addMessage('assistant', data.response);
+                }
+            } catch (error) {
+                addMessage('assistant', '网络错误，请稍后重试');
+            }
+        }
+
+        // 添加消息到聊天界面
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // 处理回车键
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 创建图表
+        async function createChart(type) {
+            // 更新按钮状态
+            document.querySelectorAll('.viz-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const chartContainer = document.getElementById('chartContainer');
+            chartContainer.innerHTML = '<p>正在生成图表...</p>';
+
+            try {
+                let endpoint = `/api/visualization/${type}`;
+                let body = {};
+
+                if (type === 'bar') {
+                    body = { x: '产品类别', y: '销售总额', title: '各产品类别销售额' };
+                } else if (type === 'pie') {
+                    body = { names: '产品类别', values: '销售总额', title: '销售额占比' };
+                }
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    chartContainer.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                } else {
+                    chartContainer.innerHTML = `<img src="/${data.filepath}" alt="图表">`;
+                }
+            } catch (error) {
+                chartContainer.innerHTML = '<p style="color: red;">图表生成失败</p>';
+            }
+        }
+
+        // 执行查询
+        async function executeQuery() {
+            const input = document.getElementById('queryInput');
+            const query = input.value.trim();
+
+            if (!query) return;
+
+            const resultDiv = document.getElementById('queryResult');
+            resultDiv.innerHTML = '<p>正在执行查询...</p>';
+
+            try {
+                const response = await fetch('/api/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                } else {
+                    let html = `<div class="sql-display">SQL: ${data.sql}</div>`;
+                    html += '<table><thead><tr>';
+                    data.columns.forEach(col => {
+                        html += `<th>${col}</th>`;
+                    });
+                    html += '</tr></thead><tbody>';
+                    data.result.forEach(row => {
+                        html += '<tr>';
+                        data.columns.forEach(col => {
+                            html += `<td>${row[col] || '-'}</td>`;
+                        });
+                        html += '</tr>';
+                    });
+                    html += '</tbody></table>';
+                    resultDiv.innerHTML = html;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p style="color: red;">查询执行失败</p>';
+            }
+        }
+
+        // 使用查询建议
+        function useSuggestion(suggestion) {
+            document.getElementById('queryInput').value = suggestion;
+            executeQuery();
+        }
+
+        // 处理查询回车键
+        function handleQueryKeyPress(event) {
+            if (event.key === 'Enter') {
+                executeQuery();
+            }
+        }
+
+        // 格式化货币
+        function formatCurrency(value) {
+            return '¥' + Number(value).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // 格式化数字
+        function formatNumber(value) {
+            return Number(value).toLocaleString('zh-CN');
+        }
+    </script>
+</body>
+</html>
